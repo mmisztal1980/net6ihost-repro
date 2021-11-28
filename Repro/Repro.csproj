@@ -7,6 +7,7 @@
 		<RepositoryUrl>https://github.com/ionizd/ion</RepositoryUrl>
 		<PackageIconUrl>https://avatars.githubusercontent.com/u/35167581</PackageIconUrl>
 		<OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
 	<ItemGroup>

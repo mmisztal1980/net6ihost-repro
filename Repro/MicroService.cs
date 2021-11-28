@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,7 +56,7 @@ public class MicroService : IMicroService
     {
         var host = global::Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
             .UseContentRoot(Directory.GetCurrentDirectory())
-            .UseConsoleLifetime()
+            .UseConsoleLifetime()            
             .ConfigureAppConfiguration((cfg) =>
             {
                 if (configuration != null)
@@ -73,6 +74,8 @@ public class MicroService : IMicroService
             .ConfigureWebHostDefaults(app => 
             {
                 app.UseStartup<Startup>();
+                // https://github.com/dotnet/aspnetcore/issues/7315#issuecomment-482458078
+                app.UseSetting(WebHostDefaults.ApplicationKey, Assembly.GetEntryAssembly().FullName);
             })            
             .Build();        
 
