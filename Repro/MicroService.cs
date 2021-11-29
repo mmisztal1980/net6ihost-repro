@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
 using System.Reflection;
@@ -56,7 +59,7 @@ public class MicroService : IMicroService
     {
         var host = global::Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
             .UseContentRoot(Directory.GetCurrentDirectory())
-            .UseConsoleLifetime()            
+            .UseConsoleLifetime()
             .ConfigureAppConfiguration((cfg) =>
             {
                 if (configuration != null)
@@ -70,13 +73,35 @@ public class MicroService : IMicroService
                         .AddEnvironmentVariables()
                         .AddCommandLine(args);
                 }
-            })                   
-            .ConfigureWebHostDefaults(app => 
+            })
+            .ConfigureServices(services => {
+                services.AddAuthorization();
+                services.AddControllers();
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "net6ihost", Version = "v1" });
+                });
+                services.AddMiddlewareAnalysis();
+            })
+            .ConfigureWebHostDefaults(host =>
             {
-                app.UseStartup<Startup>();
+                host.UseSetting(WebHostDefaults.ApplicationKey, Assembly.GetEntryAssembly().FullName);
+                host.Configure(app => 
+                {
+                    app.UseDeveloperExceptionPage();
+                    app.UseSwagger();
+                    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "net6ihost v1"));
+                    app.UseRouting();
+                    app.UseAuthorization();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapControllers();
+                    });
+                });
+                //app.UseStartup<Startup>();
                 // https://github.com/dotnet/aspnetcore/issues/7315#issuecomment-482458078
-                app.UseSetting(WebHostDefaults.ApplicationKey, Assembly.GetEntryAssembly().FullName);
-            })            
+                //app.UseSetting(WebHostDefaults.ApplicationKey, Assembly.GetEntryAssembly().FullName);
+            })
             .Build();        
 
         return host;
