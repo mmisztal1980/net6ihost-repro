@@ -74,18 +74,8 @@ public class MicroService : IMicroService
                         .AddCommandLine(args);
                 }
             })
-            .ConfigureServices(services => {
-                services.AddAuthorization();
-                services.AddControllers();
-                services.AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "net6ihost", Version = "v1" });
-                });
-                services.AddMiddlewareAnalysis();
-            })
             .ConfigureWebHostDefaults(host =>
             {
-                host.UseSetting(WebHostDefaults.ApplicationKey, Assembly.GetEntryAssembly().FullName);
                 host.Configure(app => 
                 {
                     app.UseDeveloperExceptionPage();
@@ -97,6 +87,19 @@ public class MicroService : IMicroService
                     {
                         endpoints.MapControllers();
                     });
+                });
+                
+                host.UseSetting(WebHostDefaults.ApplicationKey, Assembly.GetEntryAssembly().FullName);
+                
+                host.ConfigureServices(services => 
+                {
+                    services.AddAuthorization();
+                    services.AddControllers();
+                    services.AddSwaggerGen(c =>
+                    {
+                        c.SwaggerDoc("v1", new OpenApiInfo { Title = "net6ihost", Version = "v1" });
+                    });
+                    services.AddMiddlewareAnalysis();
                 });
                 //app.UseStartup<Startup>();
                 // https://github.com/dotnet/aspnetcore/issues/7315#issuecomment-482458078
